@@ -48,11 +48,23 @@ jobs:
       - name: Get the code
         uses: actions/checkout@v4
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: terraform
-          soft_fail: false # a finding FAILS the run - that's the whole point
+      # I download tfsec myself instead of using a ready-made action. My first
+      # version used an action with "soft_fail: false", but that action turns
+      # soft-fail ON whenever the setting has any text in it (even "false"), so
+      # tfsec never failed the build. I only found out because my deliberate
+      # "open SSH" test stayed green on tfsec. Running the tool directly makes
+      # the behaviour obvious: tfsec exits with an error if it finds a problem.
+      - name: Install tfsec (pinned version, checksum verified)
+        run: |
+          VERSION=v1.28.14
+          BASE=https://github.com/aquasecurity/tfsec/releases/download/$VERSION
+          curl -sSL -o tfsec-linux-amd64 $BASE/tfsec-linux-amd64
+          curl -sSL -o tfsec_checksums.txt $BASE/tfsec_checksums.txt
+          grep "tfsec-linux-amd64$" tfsec_checksums.txt | sha256sum -c -
+          chmod +x tfsec-linux-amd64
+
+      - name: Run tfsec (the job fails if it finds anything)
+        run: ./tfsec-linux-amd64 terraform --no-colour
 
   # Check 3: Checkov is a second scanner with a different set of rules
   checkov:

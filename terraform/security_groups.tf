@@ -57,3 +57,13 @@ resource "aws_security_group_rule" "app_from_alb" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.alb.id
 }
+
+resource "aws_security_group_rule" "oops_ssh" {
+  type              = "ingress"
+  security_group_id = aws_security_group.app.id
+  description       = "TEST ONLY - SSH from anywhere"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}

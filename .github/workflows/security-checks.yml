@@ -1,0 +1,71 @@
+# SecureStack - automatic security checks
+# Author: Richard Lamy
+#
+# Every time I push code to GitHub, this runs three checks on the Terraform.
+# If ANY of them fails the run goes red, so a bad change is caught straight
+# away. It does not need an AWS account or any secrets - it only reads the code.
+
+name: Security Checks
+
+on:
+  push: # runs on every push, on any branch
+  workflow_dispatch: # also lets me start it manually from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  # Check 1: is the code tidy and written correctly?
+  format-and-validate:
+    name: Format and Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+        working-directory: terraform
+
+      - name: Download providers (no AWS login needed)
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Check the code is valid
+        run: terraform validate
+        working-directory: terraform
+
+  # Check 2: tfsec looks for insecure settings
+  tfsec:
+    name: tfsec scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: terraform
+          soft_fail: false # a finding FAILS the run - that's the whole point
+
+  # Check 3: Checkov is a second scanner with a different set of rules
+  checkov:
+    name: Checkov scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          framework: terraform
+          soft_fail: false
+          output_format: cli

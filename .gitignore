@@ -1,0 +1,21 @@
+# Terraform working files (never commit these)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!example.tfvars
+crash.log
+override.tf
+override.tf.json
+
+# editor / OS
+.DS_Store
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# scanner binary (download it yourself, don't commit it)
+tfsec.exe
+tfsec

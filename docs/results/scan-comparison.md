@@ -1,6 +1,6 @@
 # Experiment 1: baseline vs hardened scan comparison
 
-Run on 2026-10-08 with tfsec `v1.28.14` and Checkov `3.3.26`.
+Run on 2026-10-09 with tfsec `v1.28.14` and Checkov `3.3.26`.
 
 | Version | tfsec findings | tfsec CRITICAL | tfsec HIGH | tfsec MEDIUM | tfsec LOW | Checkov failed checks |
 |---|---|---|---|---|---|---|

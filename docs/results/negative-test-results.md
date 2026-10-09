@@ -1,6 +1,6 @@
 # Experiment 2: negative testing of the security pipeline
 
-Run on 2026-10-08 with tfsec `v1.28.14` and Checkov `3.3.26`.
+Run on 2026-10-09 with tfsec `v1.28.14` and Checkov `3.3.26`.
 
 Method: start from the hardened code (which passes both scanners with zero findings), introduce one deliberate mistake, and record whether each scanner reports it.
 
